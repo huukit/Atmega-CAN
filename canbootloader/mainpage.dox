@@ -1,0 +1,10 @@
+/** \mainpage CAN bootloader for AVR devices.
+\section intro_sec Introduction
+	I had a hard time finding a simple and well documented CAN based bootloader of AVR processors so I decided to implement
+	one myself. As of now, the bootloader supports basic functions such as reading and writing flash and eeprom. It also 
+	has the possibility of rebooting the module and starting the main application. The documentation should be pretty good
+	and simple to understand. I have done my best to keep things simple and readable. 
+	The latest version of the code is always available at http://proximia.fi
+ 
+\section usage_sec Usage and communicating.
+*/
