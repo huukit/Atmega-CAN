@@ -74,9 +74,9 @@
 #define NODE_ADDRESS_MASK 0x007F
 
 /** Command byte position. */
-#define MPOSCOMMANDBYTE 0x00
+#define MPOSCOMMANDBYTE 0x00 /**< Position of the command byte */
 /** Error desctiption byte position. */
-#define MPOSERRORDESCBYTE 0x01
+#define MPOSERRORDESCBYTE 0x01 /**< Position of the errpr byte */
 
 /** \ingroup canbootloader_protocol
  * \name Message types for protocol.
@@ -91,7 +91,63 @@
 
 /** \ingroup canbootloader_protocol 
  * \name Message command types.
-*/
+ * \code
+ * data[0] is always the command.
+ *
+ * MACTYPERESETNODE 0x02 
+ * Data length: 1.
+ * Response: N/A
+ *
+ * MACTYPESENDBOOTLOADERVERSION 0x50 
+ * Data length 1.
+ * Response: 8 bytes
+ * data[1] = BL_VERSION_MAJOR;
+ * data[2] = BL_VERSION_MINOR;
+ * data[3] = BL_VERSION_BUILD;
+ * data[4] = boot_signature_byte_get(0x00);
+ * data[5] = boot_signature_byte_get(0x02);
+ * data[6] = boot_signature_byte_get(0x04);
+ * data[7] = NODETYPEDEF;
+ *
+ * MACTYPEREADEEPROMBYTE 0x55 
+ * Data length 3.
+ * data[1] = Address to read (MSB)
+ * data[2] = Address to read (LSB)
+ * Response: 4 Bytes.
+ * data[1] = Address read (MSB)
+ * data[2] = Address read (LSB)
+ * data[3] = Data from address.
+ * 
+ * MACTYPEWRITEEEPROMBYTE 0x56 
+ * Data length 4.
+ * data[1] = Address to write (MSB)
+ * data[2] = Address to write (LSB)
+ * data[3] = Data from address.
+ * Response: 4 Bytes.
+ * data[1] = Address written (MSB)
+ * data[2] = Address written (LSB)
+ * data[3] = Data from address.
+ *
+ * MACTYPEREADFLASHBYTE 0x5A 
+ * Same as MACTYPEREADEEPROM
+ *
+ * MACTYPEREADBYTEFROMFLASHBUFFER 0x5D 
+ * Same as MACTYPEREADEEPROM
+ *
+ * MACTYPEWRITEBYTETOFLASHBUFFER 0x5E
+ * Same as MACTYPEWRITEEEPROM
+ * 
+ * MACTYPESELECTFLASHPAGE 0x5B 
+ * Data length 2.
+ * data[1] = Page to select
+ * Response: 2 bytes.
+ * data[1] = Selected page.
+ *
+ * MACTYPEWRITEFLASHPAGE 0x5C 
+ * Data length 1.
+ * Response: 2 bytes
+ * \endcode
+ */
 /**\{*/
 #define MACTYPERESETNODE 0x02 /**< Reset node. */
 

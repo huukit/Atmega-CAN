@@ -47,7 +47,7 @@
 	// Send a session open (or bootloaderversion) request
 	void sendSessionOpenRequest(nodeid id){
 	    CanMessage m;
-		m.id = 	nodeDefinitions::mtypeSDOMaster | if);
+		m.id = 	nodeDefinitions::mtypeSDOMaster | id);
 		m.data[0] = nodeDefinitions::mactypeSendBootloaderVersion;
 		n.dlen = 1;
 		sendCanMessage(&m);
@@ -95,9 +95,12 @@
 \section usage_sec Usage
 	\par Configuration
 	Before you can use this bootloader you must configure loaderconfiguration.h for your device.
+	All data is sent in the big endian format for easier bus debugging.
 
+	\par Session
 	Once you have an idea of the communication usage is very simple. The only thing you need to do is open a session with 
 	MACTYPESENDBOOTLOADERVERSION and after that use the commands to write and read flash.
+
 	\par EEPROM
 	Writing and reading EEPROM is simple and straight forward. There are only two commands:
 	\code
@@ -123,8 +126,8 @@
 	\endcode
 	The steps for writing flash are as follows:
 	1. First select flash page with MACTYPESELECTFLASHPAGE. First byte is command, second is the page number.
-	2. Next write to the page buffer with MACTYPEWRITEBYTETOFLASHBUFFER. First byte is command, second and third are address and fourth is data byte.
-	3. Optionally check the buffer with MACTYPEREADFROMFLASHBUFFER (you may skip this step and verify the actual flash) Again address is to page buffer.
+	2. Next write to the page buffer with MACTYPEWRITEBYTETOFLASHBUFFER. First byte is command, second and third are address and fourth is data byte. Address is to internal page buffer.
+	3. Optionally check the buffer with MACTYPEREADFROMFLASHBUFFER (you may skip this step and verify the actual flash). Address is to internal page buffer.
 	4. After you have filled the buffer, request a write to flash with MACTYPEWRITEFLASHPAGE.
 	5. Finally verify the written section with MACTYPEREADFLASHBYTE. First byte is command, second and third are addrress. Here the address is the actual
 	device flash address 0x00 to FLASHEND.
@@ -133,4 +136,7 @@
 	\par Restarting
 	After you have verified the FLASH and EEPROM, you may send the node the reset command (MACTYPERESETNODE). This will reset the bootloader enable byte defined with 
 	EEPROM_BOOTLOADER_ENABLE_ADDRESS and start the actual application.
+
+	\par Commands and responses
+	See messagedefinitions.h for command responses and byte positioning.
 */
