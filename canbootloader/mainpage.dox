@@ -5,6 +5,132 @@
 	has the possibility of rebooting the module and starting the main application. The documentation should be pretty good
 	and simple to understand. I have done my best to keep things simple and readable. 
 	The latest version of the code is always available at http://proximia.fi
+
+	At this point the full bootloader consumes just over 2k of flash and could probably be optimized further to fit in to
+	2k.
+
+	\note Advanced functions such as writing fuses is not supported yet. These are coming in future versions.
  
-\section usage_sec Usage and communicating.
+\section comm_sec Communicating and protocol.
+	\par Protocol
+
+	The protocol that the bootloader uses is based on a simplified scheme of CANOpen communication. 
+	See: https://en.wikipedia.org/wiki/CANopen
+	This means that the 11bit CAN message ID is broken in to two different sections. A 4bit function code and a 7bit node 
+	identifier. Thus any network can have up to 127 nodes (127 unique node ID's) Function codes define what the message type is.
+	\note The reason this scheme has been chosen is that transition to a actual CANOpen compliant bootloader will be possible
+	in the future.
+	\note For the function code definitions see: http://www.canopensolutions.com/english/about_canopen/predefined.shtml
+
+	This bootloader uses the following messages to communicate between a network master (Node ID 0) and the node.
+	\code
+	0x580 + NodeID : Node Transmit
+	0x600 + NodeID : Node Receive
+	\endcode
+	This is where the similarities witn CANOpen end. Normally CANOpen uses a quite heavy directory structure to access data
+	but instead of implementing a full directory i have designated the first data byte of an SDO message to be the command byte.
+	This brings some limitations (for example a limited amount of commands) but it is much easier to implement and undestand.
+	The data length of a message is predifined and so it is not needed in the message. Thus all 7-bytes of the message can be
+	used for data.
+	Any command that is sent must be replied by the node with the same command byte. This makes it easy to implement timeouts.
+	\note All used command bytes are defined in the messagedefinitions.h file.
+
+	\par An example
+	To better understand the principle of the communciation between the master and a node, here is an example where a session 
+	request is sent to the node by the master.
+	\code 
+	// master.cpp
+	#include "master.h"
+	#include "can.h"
+	#include "messagedefinitions.h"
+
+	// Send a session open (or bootloaderversion) request
+	void sendSessionOpenRequest(nodeid id){
+	    CanMessage m;
+		m.id = 	nodeDefinitions::mtypeSDOMaster | if);
+		m.data[0] = nodeDefinitions::mactypeSendBootloaderVersion;
+		n.dlen = 1;
+		sendCanMessage(&m);
+	}
+	\endcode
+	If the node id was 5, this would send a CAN message looking as follors:
+	\code
+		ID		DLEN	DATA0
+		0x605	1		0x50
+	\endcode
+	Then the node would reply to the request (this is actually from CanBootloader.c):
+	\code
+	if(can_getMessage(&m)Y){
+		// Break can frame identifier in to node id and message type.
+		mesid = m.mesid & NODE_ADDRESS_MASK;
+		mtype = m.mesid & ~NODE_ADDRESS_MASK;
+			// Message from master (our ID) & type is SDO.
+   			if(mesid == nodeid && mtype == MTYPESDOMASTER){		
+				mcommand = m.data[MPOSCOMMANDBYTE];
+				switch(mcommand){
+					// Handle session and send version information.
+					case MACTYPESENDBOOTLOADERVERSION:
+					{
+						m.mesid = MTYPESDOSLAVE | nodeid;
+						m.data[1] = BL_VERSION_MAJOR;
+						m.data[2] = BL_VERSION_MINOR;
+						m.data[3] = BL_VERSION_BUILD;
+						m.data[4] = boot_signature_byte_get(0x00);
+						m.data[5] = boot_signature_byte_get(0x02);
+						m.data[6] = boot_signature_byte_get(0x04);
+						m.data[7] = NODETYPEDEF;
+						m.length = 8;
+						sessionOpen = 1;
+						can_sendMessage(&m);
+						break;
+					}
+	...// and so on.
+	\endcode
+	The reply would look as follows (depending on the node type and processor used.
+	\code
+		ID		DLEN	DATA0	DATA1	DATA2	DATA3	DATA4	DATA5	DATA6	DATA7
+		0x585	8		0x50	0x00	0x01	0x00	0x23	0x34	0x45	0x0F
+	\endcode
+
+\section usage_sec Usage
+	\par Configuration
+	Before you can use this bootloader you must configure loaderconfiguration.h for your device.
+
+	Once you have an idea of the communication usage is very simple. The only thing you need to do is open a session with 
+	MACTYPESENDBOOTLOADERVERSION and after that use the commands to write and read flash.
+	\par EEPROM
+	Writing and reading EEPROM is simple and straight forward. There are only two commands:
+	\code
+	#define MACTYPEREADEEPROMBYTE 0x55 /**< Write byte to EEPROM. */
+	#define MACTYPEWRITEEEPROMBYTE 0x56 /**< Read byte from EEPROM. */
+	\endcode
+	The data structure is as follows:
+	1. data byte is the command above.
+	2-3. data bytes are the address to read/write
+	4. data byte is the data to write when writing data.
+	\note The length of the CAN data is 3 bytes for reading and 4 for writing.
+
+	\par FLASH
+	Because of the page structure of flash memory writing it is a little more complex and it has to be written page by page.
+	This bootloader implements a pagebuffer that has to be filled with writable data before it can be written to the actual 
+	memory of the device. There are several commands involved here:
+	\code
+		#define MACTYPEREADFLASHBYTE 0x5A /**< Read byte from program memory. */
+		#define MACTYPESELECTFLASHPAGE 0x5B /**< Select flash page. */
+		#define MACTYPEWRITEFLASHPAGE 0x5C /**< Write flash page. */
+		#define MACTYPEREADBYTEFROMFLASHBUFFER 0x5D /**< Read byte from flash page buffer. */
+		#define MACTYPEWRITEBYTETOFLASHBUFFER 0x5E /**< Write byte to flash page buffer. */
+	\endcode
+	The steps for writing flash are as follows:
+	1. First select flash page with MACTYPESELECTFLASHPAGE. First byte is command, second is the page number.
+	2. Next write to the page buffer with MACTYPEWRITEBYTETOFLASHBUFFER. First byte is command, second and third are address and fourth is data byte.
+	3. Optionally check the buffer with MACTYPEREADFROMFLASHBUFFER (you may skip this step and verify the actual flash) Again address is to page buffer.
+	4. After you have filled the buffer, request a write to flash with MACTYPEWRITEFLASHPAGE.
+	5. Finally verify the written section with MACTYPEREADFLASHBYTE. First byte is command, second and third are addrress. Here the address is the actual
+	device flash address 0x00 to FLASHEND.
+		\note Address for page buffers are page buffer addresses (0x00 to SPM_PAGESIZE), not the internal flash.
+
+	\par Restarting
+	After you have verified the FLASH and EEPROM, you may send the node the reset command (MACTYPERESETNODE). This will reset the bootloader enable byte defined with 
+	EEPROM_BOOTLOADER_ENABLE_ADDRESS and start the actual application.
 */

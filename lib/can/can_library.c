@@ -1,3 +1,11 @@
+/** \file 
+ * CAN library for AtMega64C1. (license: GPLv2 or LGPLv2.1)
+ * \version 0.1
+ * \author Tuomas Huuki tuomas.huuki@proximia.fi
+ * \copyright 2014 Tuomas Huuki / proximia.fi
+ * \see http://proximia.fi
+ */
+
 #include "can_library.h"
 #include <util/atomic.h>
 
