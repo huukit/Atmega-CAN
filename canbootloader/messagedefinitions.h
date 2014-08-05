@@ -113,7 +113,7 @@
  * Data length 3.
  * data[1] = Address to read (MSB)
  * data[2] = Address to read (LSB)
- * Response: 4 Bytes.
+ * Response: 4 bytes.
  * data[1] = Address read (MSB)
  * data[2] = Address read (LSB)
  * data[3] = Data from address.
@@ -123,7 +123,7 @@
  * data[1] = Address to write (MSB)
  * data[2] = Address to write (LSB)
  * data[3] = Data from address.
- * Response: 4 Bytes.
+ * Response: 4 bytes.
  * data[1] = Address written (MSB)
  * data[2] = Address written (LSB)
  * data[3] = Data from address.
