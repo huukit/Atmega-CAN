@@ -1,5 +1,20 @@
 /** \mainpage CAN library and driver.
-* \section intro_sec Introduction
-* 
-* \section usage_sec Usage and communicating.
+\section intro_sec Introduction
+	Finding a well documented CAN driver for AtMega devices seems to be a challenge. This is my take on it. 
+	I have used as much of the original Atmel driver as possible and added a library to make usage easy. The
+	functionality splits some of the message object buffer of the processor to use as TX buffers and some as RX
+	RX buffers. For the internal operations please see the source files.
+
+	The library currently supports 2.0A standard ID's but the plan is to implemnent extended identifiers in the future.
+	Buss error handling conditions and reporting are also under implementation at the moment. This means that the driver
+	will recover from these errors but nohthing will be logged per se.
+
+\section usage_sec Usage and communicating.
+	Usage is simple and straight forward.
+	1. See canlibraryconfiguration.h and change the options to reflect the processor you use.
+	2. Include can_library.h
+	3. Init the bus with can_init();
+	4. Send messges by creating a canMessage variable, configure it and pass the pointer to can_sendMessgage();
+	5. Receive messages by creating a canMessage variable and pass the pointer to can_getMessage();
+	\note For a full example see my AtMega Can Bootloader project.
 */
