@@ -205,6 +205,8 @@ SIGNAL(CAN_INT_vect){
 	canMessage *m = 0;
 	uint8_t status = 0;
 	
+	uint8_t currentPage = CANPAGE;
+	
 	// No error, see what needs processing.
 	if(!canerror){
 		// RX interrupt
@@ -276,6 +278,8 @@ SIGNAL(CAN_INT_vect){
 			CANGIT |= SERG | CERG | FERG | AERG;
 		}
 	}
+	
+	CANPAGE = currentPage;
 }
 
 
