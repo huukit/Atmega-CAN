@@ -26,6 +26,8 @@
 //_____ I N C L U D E S ________________________________________________________
 #ifdef BOOTLOADER
 #include "loaderconfiguration.h"
+#else
+#include "canlibraryconfiguration.h"
 #endif
 
 #include <stdint.h>
