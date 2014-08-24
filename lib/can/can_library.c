@@ -205,6 +205,10 @@ SIGNAL(CAN_INT_vect){
 	canMessage *m = 0;
 	uint8_t status = 0;
 	
+	/* Save the page that is selected as the interrupt will change this and a transmission might be taking
+		place at the same time. Restore it before exiting the interrupt handler so any function using the page
+		can continue normally after the interrupt.
+	*/
 	uint8_t currentPage = CANPAGE;
 	
 	// No error, see what needs processing.
