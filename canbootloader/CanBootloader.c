@@ -141,6 +141,7 @@ int main()
 	canMessage m;
 	uint8_t doLoaderTask = 1;
 	uint8_t sessionOpen = 0;
+	uint8_t sendError = 0;
 	
 	// Loop loadertask until exit requested.
     while(doLoaderTask)
@@ -182,6 +183,7 @@ int main()
 						break;
 					}
 					default:
+						sendError = 1;
 						break;
 				}
 				
@@ -323,11 +325,13 @@ int main()
 							break;
 						}
 						default:
+							sendError = 1;
 							break;
 					}
 				}
 				// If memory operations are requested without opening the session, send error.
-				else if(doLoaderTask){
+				else if(doLoaderTask && sendError == 1){
+					sendError = 0;
 					m.mesid = MTYPESDOSLAVE | nodeid;
 					m.data[MPOSCOMMANDBYTE] = MACTYPESENDERROR;
 					m.data[MPOSERRORDESCBYTE] = ERRORBOOTLOADERSESSIONNOTOPEN;
