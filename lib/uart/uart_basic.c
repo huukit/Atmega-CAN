@@ -6,6 +6,7 @@ uint8_t uart_init(){
 	LINBRRL = (((F_CPU/UART_BAUD)/16)-1);
 	LINBTR = (1 << LDISR)| (16 << LBT0);
 	LINCR = (1<<LENA)|(1<<LCMD2)|(1<<LCMD1)|(1<<LCMD0);
+	return 1;
 }
 
 void uart_send(uint8_t byte){
