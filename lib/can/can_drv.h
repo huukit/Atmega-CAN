@@ -27,10 +27,14 @@
 #ifdef BOOTLOADER
 #include "loaderconfiguration.h"
 #else
-#include "canlibraryconfiguration.h"
+	#include "canlibraryconfiguration.h"
+	#ifndef _CANLIBRARYCONFIGURATION_H_
+		#error You need to #include the "configuration.h" file to set port and speed options.
+	#endif
 #endif
 
 #include <stdint.h>
+#include <avr/io.h>
 
 //_____ D E F I N I T I O N S __________________________________________________
 #define max(a,b) \

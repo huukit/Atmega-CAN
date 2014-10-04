@@ -79,6 +79,9 @@
 	#include "loaderconfiguration.h"
 #else
 	#include "canlibraryconfiguration.h"
+	#ifndef _CANLIBRARYCONFIGURATION_H_
+		#error You need to #include the "configuration.h" file to set port and speed options.
+	#endif
 #endif
 
 #define CAN_BUFFEREMPTY -1
