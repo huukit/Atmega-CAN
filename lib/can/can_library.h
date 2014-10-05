@@ -145,6 +145,13 @@ typedef struct _canMessage{
 uint8_t can_init();
 
 /** \ingroup atmega_canlibrary
+ * \brief Disable driver & hardware.
+ *
+ * Disabled the driver and the transciever if the option has been configured.
+ */
+void can_close();
+
+/** \ingroup atmega_canlibrary
  * \brief Sends a can message.
  * \param m Pointer to a canMessage object that has been configured.
  * \retval 0 Message NOT sent.

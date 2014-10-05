@@ -133,6 +133,22 @@ uint8_t can_init(){
 	return baudratecomplete;
 }
 
+void can_close(){
+	// Disable transciever.
+	can_disableTransciever();
+	
+	// Disable hardware.
+	Can_disable();
+	
+	// Disable all interrupts.
+	CANGIE = 0x00;
+	CANIE1 = 0x00;
+	CANIE2 = 0x00;
+	
+	// Clear all data
+	can_clear_all_mob();
+}
+
 // Send a message pointed by m.
 uint8_t can_sendMessage(canMessage *m){
 	uint8_t bufferfound = 0;
