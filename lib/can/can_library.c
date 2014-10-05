@@ -50,6 +50,7 @@ int canbuf_remove(canMessage *m){
 	if (ring_head != ring_tail) {
 		m->mesid = ring_data[ring_tail].mesid;
 		m->length = ring_data[ring_tail].length;
+		m->cantime = ring_data[ring_tail].cantime;
 		m->rtr = ring_data[ring_tail].rtr;
 		for(int i = 0; i < m->length; i++)
 			m->data[i] = ring_data[ring_tail].data[i];
