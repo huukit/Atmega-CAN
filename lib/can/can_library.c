@@ -54,7 +54,9 @@ int canbuf_remove(canMessage *m){
 		m->rtr = ring_data[ring_tail].rtr;
 		for(int i = 0; i < m->length; i++)
 			m->data[i] = ring_data[ring_tail].data[i];
-		ring_tail = (ring_tail + 1) % RING_SIZE;
+		ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
+			ring_tail = (ring_tail + 1) % RING_SIZE;
+		}
 		return 1;
 	} else {
 		return 0;
@@ -187,17 +189,15 @@ uint8_t can_sendMessage(canMessage *m){
 
 // Return a message from the internal buffer.
 int8_t can_getMessage(canMessage *m){
-  if(!msg_received)return CAN_BUFFEREMPTY;
-  uint8_t status = 0;
-  // NOTE: Needs to be atomic.
-  ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
+	if(!msg_received)return CAN_BUFFEREMPTY;
+	uint8_t status = 0;
+	
 	status = canbuf_remove(m);
-	if (status)
-	{
+	if (status){
 		msg_received--;
 		status = can_getRxBufferLength();
 	}
-  }
+  
   return status;
 }
 
