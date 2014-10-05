@@ -95,4 +95,14 @@
  */
 #define FILTER_CAN_DEBUG
 
+/** \ingroup canlibrary_config 
+ * \name Interrupt handling behavior
+ * \brief Use nested interrupts.
+ *
+ * In some cases where nested interrupts are required this switch enables the functionality. Note,
+ * that will still require a few clock cycles to get the interrupts back on as special functionality
+ * has to be implemented as the processor does not automatically acknowledge can interrupts.
+ */
+//#define CANLIB_NESTED_INTERRUPTS
+
 #endif //_CANLIBRARYCONFIGURATION_H_

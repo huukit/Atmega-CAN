@@ -201,7 +201,22 @@ SIGNAL(CAN_TOVF_vect)
  * Main can interrupt. Handles RX, TX and error situations. TODO: Proper error handling.
  */
 SIGNAL(CAN_INT_vect){
- 	uint8_t canerror = CANGIT & (_BV(BOFFIT) | _BV(SERG) | _BV(CERG) | _BV(FERG) | _BV(AERG));
+	uint8_t cangit = CANGIT;
+	CANGIT |= (_BV(BOFFIT) | _BV(SERG) | _BV(CERG) | _BV(FERG) | _BV(AERG));
+
+	// If we need nested interrupts, disable MOb interrupts or this will end in an death loop for some reason.	
+	#ifdef CANLIB_NESTED_INTERRUPTS
+		#if defined (__AVR_ATmega64C1__) | (__AVR_ATmega32C1__)
+			CANIE1 = 0x00;
+			CANIE2 = 0x00;
+		#else
+			#error You must define the MOB registers in can_library.c (can_init) for your processor.
+		#endif
+		sei();
+	#endif
+	
+	uint8_t canerror = cangit & (_BV(BOFFIT) | _BV(SERG) | _BV(CERG) | _BV(FERG) | _BV(AERG));
+			
 	canMessage *m = 0;
 	uint8_t status = 0;
 	
@@ -274,16 +289,23 @@ SIGNAL(CAN_INT_vect){
 	}
 	// Errors, log or reset if busoff.
 	else{
-		if(CANGIT & _BV(BOFFIT)){
+		if(cangit & _BV(BOFFIT)){
 			can_init();
-			CANGIT |= BOFFIT;
 		}
 		else{
-			CANGIT |= SERG | CERG | FERG | AERG;
+			// Log other errors.
 		}
 	}
-	
+
 	CANPAGE = currentPage;
+	#ifdef CANLIB_NESTED_INTERRUPTS
+		#if defined (__AVR_ATmega64C1__) | (__AVR_ATmega32C1__)
+			CANIE1 = 0x00;
+			CANIE2 = _BV(IEMOB0) | _BV(IEMOB1) | _BV(IEMOB2) | _BV(IEMOB3) | _BV(IEMOB4) | _BV(IEMOB5);
+		#else
+			#error You must define the MOB registers in can_library.c (can_init) for your processor.
+		#endif
+	#endif
 }
 
 
