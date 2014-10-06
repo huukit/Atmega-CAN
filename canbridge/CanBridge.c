@@ -33,7 +33,14 @@
 
 #include <avr/io.h>
 #include <avr/wdt.h>
+#include <util/delay.h>
+
+#include "canbridgelogic.h"
+
+#include "board.h"
 #include "uart/uart_basic.h"
+
+#include "3rdparty/usbdrv/usbdrv.h"
 
 /** \internal
  * \ingroup canbridge_main
@@ -56,18 +63,29 @@ void handle_mcucsr()
 	MCUSR = 0;
 }
 
-
 int main(void)
 {
 	wdt_disable();
-	uart_init();
 	
-	uint8_t byte = 0x00;
-	uart_sendline("UART0 Test!");
+	uart_init();
+	board_init();
+	
+	// Switch on leds for init.
+	DLEDPORT &= ~(_BV(DLED1) | _BV(DLED2));
+		
+	// Force reconnect.
+	usbDeviceDisconnect();
+	_delay_ms(500);
+	usbDeviceConnect();
+	bridgelogic_init();
+	
+	sei();
+		
+	DLEDPORT |= _BV(DLED1) | _BV(DLED2);
 	
     while(1)
     {
-        if(uart_receive(&byte) == 1)
-			uart_send(byte);
-    }
+        usbPoll();
+		bridgelogic_poll();
+	}
 }
