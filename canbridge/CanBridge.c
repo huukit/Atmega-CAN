@@ -79,6 +79,7 @@ int main(void)
 	usbDeviceConnect();
 	bridgelogic_init();
 	
+	uart_sendline("B00t\n\r");
 	sei();
 		
 	DLEDPORT |= _BV(DLED1) | _BV(DLED2);
