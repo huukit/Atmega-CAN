@@ -47,9 +47,6 @@ public:
     canBridgeDefinitions::errorCode init(uint32_t busSpeed);
     void close();
     std::string getLibraryVersionString();
-
-private:
-
 };
 
 #endif // LIBCANBRIDGE_H

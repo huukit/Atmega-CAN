@@ -1,28 +1,35 @@
 #include "libcanbridge.h"
 #include "libusb.h"
+#include "devicecommunicator.h"
 
 #include <QString>
 #include <QDebug>
 
 namespace canBridgeInternals{
+    // USB library.
     static libusb_device_handle *currentdevhndl = 0;
+
     const uint16_t usbDevVID = 0x16C0;
     const uint16_t usbDevPID = 0x05DC;
     std::string usbDevVendorString = "proximia.fi";
     std::string usbDevDeviceString = "CANBridge";
     const uint32_t usbDevMaxDescrLength = 1024;
     const uint8_t usbLibraryContext = NULL;
+
+    // Communicator.
+    static DeviceCommunicator * deviceCom;
 }
 
 
 LibCanBridge::LibCanBridge()
 {
-
+    canBridgeInternals::deviceCom = 0;
 }
 
 LibCanBridge::~LibCanBridge(){
     libusb_close(canBridgeInternals::currentdevhndl);
     libusb_exit(canBridgeInternals::usbLibraryContext);
+    if(canBridgeInternals::deviceCom)delete canBridgeInternals::deviceCom;
 }
 
 std::string LibCanBridge::getLibraryVersionString(){
@@ -102,6 +109,7 @@ canBridgeDefinitions::errorCode LibCanBridge::init(uint32_t busSpeed){
     libusb_claim_interface(canBridgeInternals::currentdevhndl, 0);
 
     qDebug() << "LibUsb init complete.";
+    canBridgeInternals::deviceCom = new DeviceCommunicator(canBridgeInternals::currentdevhndl, 0);
 
     // Free the device list.
     return canBridgeDefinitions::errOk;
