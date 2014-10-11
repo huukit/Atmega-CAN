@@ -12,12 +12,24 @@
 
 namespace canBridgeDefinitions{
     static const std::string libraryvendor = "http://proximia.fi";
+    static const std::string libraryname = "libCanBridge";
     static const uint8_t libraryversion[3] = {0, 1, 'a'};
 
     enum errorCode{
+        // OK
         errOk = 0,
+
+        // No such device, or device removed
         errNoDevice = -1,
-        errInvalidSpeed = -2
+
+        // LibUsb related errors
+        errUsbInitFailed = -20,
+        errUsbInitNoDevices = -21,
+        errUsbInitInvalidName = -22,
+        errUsbInitNoChannel = -23,
+
+        // Library internal errors.
+        errInvalidSpeed = -50
     };
 
     enum busSpeeds{
@@ -30,9 +42,13 @@ class LIBCANBRIDGESHARED_EXPORT LibCanBridge
 
 public:
     LibCanBridge();
+    ~LibCanBridge();
+
     canBridgeDefinitions::errorCode init(uint32_t busSpeed);
     void close();
     std::string getLibraryVersionString();
+
+private:
 
 };
 

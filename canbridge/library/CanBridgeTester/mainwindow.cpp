@@ -10,7 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
     LibCanBridge bridge;
     std::string version = bridge.getLibraryVersionString();
     qDebug() << QString::fromStdString(version);
-    //bridge.init(250);
+    bridge.init(canBridgeDefinitions::bus250k);
     ui->setupUi(this);
 }
 
