@@ -13,8 +13,7 @@ DEFINES += LIBCANBRIDGE_LIBRARY
 
 SOURCES += libcanbridge.cpp
 
-HEADERS += libcanbridge.h\
-        libcanbridge_global.h
+HEADERS += libcanbridge.h
 
 unix {
     target.path = /usr/lib
