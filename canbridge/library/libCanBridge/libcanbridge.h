@@ -9,6 +9,7 @@
 
 #include <string>
 #include <stdint.h>
+#include <time.h>
 
 namespace canBridgeDefinitions{
     static const std::string libraryvendor = "http://proximia.fi";
@@ -32,13 +33,17 @@ namespace canBridgeDefinitions{
         errInvalidSpeed = -50,
 
         // Device communication errors
-        errCannotOpenDevice = -60
+        errCannotOpenDevice = -60,
+        errRxBufferEmpty = -65,
+        errTxQueueFull = -66
     };
 
     enum busSpeeds{
         bus250k = 250000
     };
 }
+
+typedef void(* rxIntCallback)(uint32_t);
 
 class LIBCANBRIDGESHARED_EXPORT LibCanBridge
 {
@@ -49,6 +54,12 @@ public:
 
     canBridgeDefinitions::errorCode init(uint32_t busSpeed);
     void close();
+
+    canBridgeDefinitions::errorCode sendMessage(uint32_t id, uint8_t rtr, uint8_t len, uint8_t * data);
+    uint32_t getMessage(time_t drvtime, uint32_t devtime, uint32_t &id, uint8_t &rtr, uint8_t &len, uint8_t * data);
+
+    void registerCallback(rxIntCallback cb);
+
     std::string getLibraryVersionString();
 
 private:

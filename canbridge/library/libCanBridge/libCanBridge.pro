@@ -12,10 +12,13 @@ TEMPLATE = lib
 DEFINES += LIBCANBRIDGE_LIBRARY
 
 SOURCES += libcanbridge.cpp \
-    devicecommunicator.cpp
+    devicecommunicator.cpp \
+    canmessage.cpp
 
 HEADERS += libcanbridge.h \
-    devicecommunicator.h
+    devicecommunicator.h \
+    canmessage.h \
+    signaltrampoline.h
 
 unix {
     target.path = /usr/lib

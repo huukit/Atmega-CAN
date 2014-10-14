@@ -4,6 +4,7 @@
 
 #include <QString>
 #include <QDebug>
+#include "signaltrampoline.h"
 
 namespace canBridgeInternals{
     // USB library.
@@ -18,17 +19,23 @@ namespace canBridgeInternals{
 
     // Communicator.
     static DeviceCommunicator * deviceCom = 0;
+    static SignalTrampoline * sigTrampoline = 0;
 }
-
 
 LibCanBridge::LibCanBridge()
 {
     canBridgeInternals::deviceCom = 0;
+    canBridgeInternals::sigTrampoline = new SignalTrampoline();
     initCalled = false;
 }
 
 LibCanBridge::~LibCanBridge(){
     close();
+    delete canBridgeInternals::sigTrampoline;
+}
+
+void LibCanBridge::registerCallback(rxIntCallback cb){
+    canBridgeInternals::sigTrampoline->intCallback = cb;
 }
 
 std::string LibCanBridge::getLibraryVersionString(){
@@ -130,4 +137,24 @@ canBridgeDefinitions::errorCode LibCanBridge::init(uint32_t busSpeed){
 
     // Free the device list.
     return canBridgeDefinitions::errOk;
+}
+
+uint32_t LibCanBridge::getMessage(time_t drvtime, uint32_t devtime, uint32_t &id, uint8_t &rtr, uint8_t &len, uint8_t * data){
+    if(canBridgeInternals::deviceCom->getMessageBufferLength() == 0)
+        return canBridgeDefinitions::errRxBufferEmpty;
+
+    CanMessage msg;
+    canBridgeInternals::deviceCom->getMessageFromBuffer(msg);
+
+    id = msg.getId();
+    rtr = msg.getRtr();
+    len = msg.getLen();
+    memcpy(data, msg.getData(), len);
+    devtime = msg.getRevTimeDriverMs();
+    drvtime = msg.getTimeRaw();
+    return canBridgeInternals::deviceCom->getMessageBufferLength();
+}
+
+canBridgeDefinitions::errorCode LibCanBridge::sendMessage(uint32_t id, uint8_t rtr, uint8_t len, uint8_t *data){
+    return canBridgeDefinitions::errTxQueueFull;
 }

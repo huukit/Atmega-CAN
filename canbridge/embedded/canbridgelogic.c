@@ -47,7 +47,7 @@ uchar usbFunctionSetup(uchar setupData[8]){
 			bytesRemaining = rq->wLength.word;
 			return USB_NO_MSG;
 		case USB_COMMAND_SENDCANDATA:
-			if(!initok)break;
+			if(!initok || txWaiting)break;
 			PORTC &= ~_BV(DLED1);
 			currentPosition = 0;
 			bytesRemaining = rq->wLength.word;
@@ -68,6 +68,8 @@ uchar usbFunctionWrite(uchar *data, uchar len){
 	
 	if(bytesRemaining == 0){
 		txWaiting = 1;
+		while(!can_sendMessage((canMessage *)usbTxBuffer));
+		txWaiting = 0;
 		PORTC |= _BV(DLED1);
 	}
 	
@@ -114,8 +116,4 @@ void bridgelogic_poll(){
 				usbSetInterrupt(&canbuflen, 1);
 			}
 		}
-		if((txWaiting || txSent == 0) && initok){
-			txSent = can_sendMessage((canMessage *)usbTxBuffer);
-			txWaiting = 0;
-		}	
 }

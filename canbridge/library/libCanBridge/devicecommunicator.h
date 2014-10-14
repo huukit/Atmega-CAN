@@ -5,6 +5,8 @@
 #include <stdint.h>
 
 #include "libusb.h"
+#include "canmessage.h"
+#include <QVector>
 
 namespace deviceCommands{
     static const uint32_t initBus = 1;
@@ -26,13 +28,19 @@ namespace deviceCommands{
 static const uint8_t maxUsbControlDataLen = 8;
 static const uint8_t maxUsbDataLen = 254;
 
+typedef QVector<CanMessage *> canMessageBuffer_t;
+
+// Helper class for handling device interrupts.
 #include <QThread>
+#include <QMutex>
+
+static QMutex bufferMutex;
 
 class DeviceInterruptHandler : public QThread{
     Q_OBJECT
 public:
-    DeviceInterruptHandler(libusb_device_handle * handle, QObject * parent = 0)
-        : usbDeviceHandle(handle), QThread(parent){
+    DeviceInterruptHandler(libusb_device_handle * handle, canMessageBuffer_t * mbuf, QObject * parent = 0)
+        : usbDeviceHandle(handle), messageBuffer(mbuf), QThread(parent){
         runEnabled = false;
     }
 
@@ -50,6 +58,12 @@ public:
                 for(uint32_t i = 0; i < dataControlBuffer[0]; i++){
                     success = libusb_control_transfer(usbDeviceHandle, LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_ENDPOINT_IN, deviceCommands::getCanData, 0, 0, dataBuffer, sizeof(deviceCommands::canMessage), 1000);
                     qDebug("Has message.");
+                    CanMessage * mes = new CanMessage();
+                    deviceCommands::canMessage * devmsg = (deviceCommands::canMessage *)dataBuffer;
+                    mes->insertData(devmsg->cantime, 0, devmsg->mesid, devmsg->rtr, devmsg->length, devmsg->data);
+                    bufferMutex.lock();
+                    messageBuffer->append(mes);
+                    bufferMutex.unlock();
                 }
                 emit(dataControlBuffer[0]);
             }
@@ -66,8 +80,10 @@ signals:
 private:
     bool runEnabled;
     libusb_device_handle * usbDeviceHandle;
+    canMessageBuffer_t * messageBuffer;
 };
 
+// Main communicator.
 class DeviceCommunicator : public QObject
 {
     Q_OBJECT
@@ -77,6 +93,11 @@ public:
     bool sendOpenCommand(uint32_t busSpeed);
     bool sendCloseCommand();
 
+    bool getMessageFromBuffer(CanMessage & message);
+    uint32_t getMessageBufferLength(){
+        return messageBuffer.length();
+    }
+
 signals:
 
 public slots:
@@ -84,6 +105,7 @@ public slots:
 private:
     libusb_device_handle * usbDeviceHandle;
     DeviceInterruptHandler * intHandler;
+    canMessageBuffer_t messageBuffer;
 };
 
 #endif // DEVICECOMMUNICATOR_H
