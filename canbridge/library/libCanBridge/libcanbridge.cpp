@@ -17,29 +17,41 @@ namespace canBridgeInternals{
     const uint8_t usbLibraryContext = NULL;
 
     // Communicator.
-    static DeviceCommunicator * deviceCom;
+    static DeviceCommunicator * deviceCom = 0;
 }
 
 
 LibCanBridge::LibCanBridge()
 {
     canBridgeInternals::deviceCom = 0;
+    initCalled = false;
 }
 
 LibCanBridge::~LibCanBridge(){
-    libusb_close(canBridgeInternals::currentdevhndl);
-    libusb_exit(canBridgeInternals::usbLibraryContext);
-    if(canBridgeInternals::deviceCom)delete canBridgeInternals::deviceCom;
+    close();
 }
 
 std::string LibCanBridge::getLibraryVersionString(){
-    return canBridgeDefinitions::libraryvendor + " " +\
-            canBridgeDefinitions::libraryname + " v" + QString("%1.%2.%3\n").arg(canBridgeDefinitions::libraryversion[0])\
+    return canBridgeDefinitions::libraryvendor + "\n" +\
+            canBridgeDefinitions::libraryname + " version: " + QString("%1.%2.%3\n").arg(canBridgeDefinitions::libraryversion[0])\
                                                                             .arg(canBridgeDefinitions::libraryversion[1])\
                                                                             .arg((char)canBridgeDefinitions::libraryversion[2]).toStdString() +\
-                             QString("Linked with libusb version. %1.%2.%3").arg(libusb_get_version()->major)\
+                             QString("Linked with libusb version: %1.%2.%3").arg(libusb_get_version()->major)\
                                                                             .arg(libusb_get_version()->minor)\
                                                                             .arg(libusb_get_version()->micro).toStdString();
+}
+
+void LibCanBridge::close(){
+    if(initCalled){
+        canBridgeInternals::deviceCom->sendCloseCommand();
+        libusb_close(canBridgeInternals::currentdevhndl);
+        libusb_exit(canBridgeInternals::usbLibraryContext);
+        initCalled = false;
+    }
+    if(canBridgeInternals::deviceCom){
+        delete canBridgeInternals::deviceCom;
+        canBridgeInternals::deviceCom = 0;
+    }
 }
 
 canBridgeDefinitions::errorCode LibCanBridge::init(uint32_t busSpeed){
@@ -58,6 +70,8 @@ canBridgeDefinitions::errorCode LibCanBridge::init(uint32_t busSpeed){
         qDebug() << "Libusb init failed.";
         return canBridgeDefinitions::errUsbInitFailed;
     }
+
+    initCalled = true;
 
     // Get list of devices.
     success = libusb_get_device_list(canBridgeInternals::usbLibraryContext, &list);
@@ -110,6 +124,9 @@ canBridgeDefinitions::errorCode LibCanBridge::init(uint32_t busSpeed){
 
     qDebug() << "LibUsb init complete.";
     canBridgeInternals::deviceCom = new DeviceCommunicator(canBridgeInternals::currentdevhndl, 0);
+
+    if(!canBridgeInternals::deviceCom->sendOpenCommand(canBridgeDefinitions::bus250k))
+        return canBridgeDefinitions::errCannotOpenDevice;
 
     // Free the device list.
     return canBridgeDefinitions::errOk;

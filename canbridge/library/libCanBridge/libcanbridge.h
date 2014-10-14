@@ -29,7 +29,10 @@ namespace canBridgeDefinitions{
         errUsbInitNoChannel = -23,
 
         // Library internal errors.
-        errInvalidSpeed = -50
+        errInvalidSpeed = -50,
+
+        // Device communication errors
+        errCannotOpenDevice = -60
     };
 
     enum busSpeeds{
@@ -47,6 +50,9 @@ public:
     canBridgeDefinitions::errorCode init(uint32_t busSpeed);
     void close();
     std::string getLibraryVersionString();
+
+private:
+    bool initCalled;
 };
 
 #endif // LIBCANBRIDGE_H

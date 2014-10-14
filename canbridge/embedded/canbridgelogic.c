@@ -19,7 +19,6 @@ uint8_t intServed = 0;
 uint8_t txWaiting = 0;
 uint8_t txSent = 0;
 
-
 #define USB_COMMAND_INITBUS 1
 #define USB_COMMAND_CLOSEBUS 2
 #define USB_COMMAND_GETCANDATA 3
@@ -31,10 +30,12 @@ uchar usbFunctionSetup(uchar setupData[8]){
 	usbRequest_t *rq = (void *)setupData;   // cast to structured data for parsing
 	switch(rq->bRequest){
 		case USB_COMMAND_INITBUS:
+			uart_sendline("Opening bus.");
 			can_init();
 			initok = 1;
 		break;
 		case USB_COMMAND_CLOSEBUS:
+			uart_sendline("Closing bus.");
 			can_close();
 			initok = 0;
 		break;
