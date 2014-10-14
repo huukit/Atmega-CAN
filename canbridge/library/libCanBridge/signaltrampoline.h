@@ -13,12 +13,12 @@ public:
 
     SignalTrampoline(QObject * parent = 0) :
         QObject(parent){
-
+        intCallback = 0;
     }
 
 public slots:
     void messageInt(uint32_t buflen){
-        intCallback(buflen);
+        if(intCallback)intCallback(buflen);
     }
 
 private:
