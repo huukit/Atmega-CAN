@@ -105,6 +105,9 @@ canBridgeDefinitions::errorCode LibCanBridge::init(uint32_t busSpeed){
         }
     }
 
+    if(i == success)
+        return canBridgeDefinitions::errNoDevice;
+
     // Open device to get the descriptors.
     status = libusb_open(found, &canBridgeInternals::currentdevhndl);
 
