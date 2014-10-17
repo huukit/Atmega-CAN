@@ -176,6 +176,14 @@ void can_close();
 uint8_t can_sendMessage(canMessage *m);
 
 /** \ingroup atmega_canlibrary
+ * \brief Check if there are ant free transmitting MOBs
+ * \retval -1 No buffers
+ * \retval n free buffer.
+ * .
+ */
+int8_t can_hasFreeTxBuffer();
+
+/** \ingroup atmega_canlibrary
  * \brief Gets a can message from the reception buffer.
  * \param m Pointer to message.
  * \retval -1 No message in buffer.

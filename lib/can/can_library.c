@@ -63,6 +63,17 @@ int canbuf_remove(canMessage *m){
 	}
 }
 
+// See if we have any free tx-buffers.
+int8_t can_hasFreeTxBuffer(){
+	for (uint32_t i = FIRST_TX_MOB; i < NB_MOB; i++){
+		Can_set_mob(i);
+		if(can_get_mob_status() == MOB_DISABLE){
+			return i;
+		}
+	}	
+	return -1;
+}
+
 // Enable the CAN transciever hardware
 void can_enableTransciever(){
 	CANRS_DDR |= _BV(CANRS_PIN);
@@ -153,18 +164,14 @@ void can_close(){
 
 // Send a message pointed by m.
 uint8_t can_sendMessage(canMessage *m){
-	uint8_t bufferfound = 0;
-	// See if we have free buffers.
-	for (uint32_t i = FIRST_TX_MOB; i < NB_MOB; i++){
-		Can_set_mob(i);
-		if(can_get_mob_status() == MOB_DISABLE){
-			bufferfound = 1;
-			break;		
-		}
-	}
+	int8_t bufferfound = 0;
+
+	bufferfound = can_hasFreeTxBuffer();
 	
 	// Buffer found. Clear and init with m.
-	if(bufferfound){
+	if(bufferfound >= 0){
+		Can_set_mob(bufferfound);
+		
 		CANCDMOB = 0;
 		Can_clear_status_mob();
 		
