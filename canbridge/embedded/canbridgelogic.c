@@ -16,15 +16,16 @@ static uint8_t usbRxBuffer[CANPACKETSIZE];
 static uint8_t usbTxBuffer[CANPACKETSIZE];
 
 uint8_t intServed = 0;
-uint8_t txWaiting = 0;
 uint8_t txSent = 0;
 
 #define USB_COMMAND_INITBUS 1
 #define USB_COMMAND_CLOSEBUS 2
 #define USB_COMMAND_GETCANDATA 3
 #define USB_COMMAND_SENDCANDATA 4
+#define USB_COMMAND_GETFREETX 5
 
 uint8_t initok = 0;
+uint8_t replyBuffer[8];
 
 uchar usbFunctionSetup(uchar setupData[8]){
 	usbRequest_t *rq = (void *)setupData;   // cast to structured data for parsing
@@ -47,11 +48,16 @@ uchar usbFunctionSetup(uchar setupData[8]){
 			bytesRemaining = rq->wLength.word;
 			return USB_NO_MSG;
 		case USB_COMMAND_SENDCANDATA:
-			if(!initok || txWaiting)break;
+			if(!initok)break;
 			PORTC &= ~_BV(DLED1);
 			currentPosition = 0;
 			bytesRemaining = rq->wLength.word;
 			return USB_NO_MSG;
+		case USB_COMMAND_GETFREETX:
+			replyBuffer[0] = can_hasFreeTxBuffer();
+			usbMsgPtr = replyBuffer;
+			return 1;
+		break;
 		default:
 		break;
 	}
@@ -67,9 +73,7 @@ uchar usbFunctionWrite(uchar *data, uchar len){
 	usbTxBuffer[currentPosition++] = data[i];
 	
 	if(bytesRemaining == 0){
-		txWaiting = 1;
 		while(!can_sendMessage((canMessage *)usbTxBuffer));
-		txWaiting = 0;
 		PORTC |= _BV(DLED1);
 	}
 	
@@ -105,7 +109,6 @@ void bridgelogic_init(){
 	usbInit();
 	
 	intServed = 1;
-	txWaiting = 0;
 }
 
 void bridgelogic_poll(){

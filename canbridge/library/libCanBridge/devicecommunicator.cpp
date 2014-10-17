@@ -7,6 +7,35 @@ DeviceCommunicator::DeviceCommunicator(libusb_device_handle * handle, QObject *p
     intHandler = new DeviceInterruptHandler(handle, &messageBuffer, this);
 }
 
+bool DeviceCommunicator::sendMessageCommand(CanMessage &message){
+    uint8_t usbDataBuffer[maxUsbControlDataLen];
+    uint32_t i;
+    ssize_t success = 0;
+
+    for(i = 0; i < 10; i++){
+        success = libusb_control_transfer(usbDeviceHandle, LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_ENDPOINT_IN, deviceCommands::getFreeTx, 0, 0, usbDataBuffer, 8, 1000);
+        if(success != 1)
+            return false;
+        // See if we have free buffer.
+        qDebug() << "Has " << success << "bytes, data: " << usbDataBuffer[0];
+        if(usbDataBuffer[0] != 0xFF)
+            break;
+    }
+    if(i == 10)
+        return false;
+    // We have free buffer, send data.
+    deviceCommands::canMessage msg;
+    msg.mesid = message.getId();
+    msg.rtr = message.getRtr();
+    msg.length = message.getLen();
+    memcpy(msg.data, message.getData(), message.getLen());
+
+    success = libusb_control_transfer(usbDeviceHandle, LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_ENDPOINT_OUT, deviceCommands::sendCanData, 0, 0, (uint8_t *)&msg, sizeof(deviceCommands::canMessage), 1000);
+    if(success < LIBUSB_SUCCESS)
+        return false;
+    return true;
+}
+
 bool DeviceCommunicator::sendOpenCommand(uint32_t busSpeed){
     // Start interrupthandler before opening bus so no messages get missed.
     intHandler->start();

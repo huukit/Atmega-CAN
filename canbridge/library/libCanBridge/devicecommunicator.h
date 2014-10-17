@@ -13,6 +13,7 @@ namespace deviceCommands{
     static const uint32_t closeBus = 2;
     static const uint32_t getCanData = 3;
     static const uint32_t sendCanData = 4;
+    static const uint32_t getFreeTx = 5;
 
     #pragma pack(1)
     typedef struct _canMessage{
@@ -93,10 +94,14 @@ public:
     bool sendOpenCommand(uint32_t busSpeed);
     bool sendCloseCommand();
 
-    bool getMessageFromBuffer(CanMessage & message);
-    uint32_t getMessageBufferLength(){
+    uint32_t getRxMessageBufferLength(){
         return messageBuffer.length();
     }
+
+    bool getMessageFromBuffer(CanMessage & message);
+
+
+    bool sendMessageCommand(CanMessage & message);
 
 signals:
 

@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTimer>
+
 #include "libcanbridge.h"
 
 namespace Ui {
@@ -23,9 +25,15 @@ private slots:
 
     void on_actionAbout_triggered();
 
+    void on_butSend_clicked();
+
+    void on_checkFlood_toggled(bool checked);
+
 private:
     Ui::MainWindow *ui;
     LibCanBridge canBridge;
+    QTimer * ftimer;
+    uint32_t count;
 };
 
 #endif // MAINWINDOW_H

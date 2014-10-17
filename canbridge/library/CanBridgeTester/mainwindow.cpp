@@ -40,3 +40,25 @@ void MainWindow::on_actionAbout_triggered()
     box.setText(version);
     box.exec();
 }
+
+void MainWindow::on_butSend_clicked()
+{
+
+    uint8_t bufferdat[] = "12345678";
+    canBridge.sendMessage(0x0A, 0, 8, bufferdat);
+    count++;
+    ui->lineCount->setText(QString::number(count));
+}
+
+void MainWindow::on_checkFlood_toggled(bool checked)
+{
+    if(checked){
+        ftimer = new QTimer(this);
+        ftimer->setInterval(1);
+        connect(ftimer, SIGNAL(timeout()), this, SLOT(on_butSend_clicked()));
+        ftimer->start();
+        count = 0;
+    }
+    else
+        ftimer->stop();
+}

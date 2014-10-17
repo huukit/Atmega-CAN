@@ -143,7 +143,7 @@ canBridgeDefinitions::errorCode LibCanBridge::init(uint32_t busSpeed){
 }
 
 uint32_t LibCanBridge::getMessage(time_t drvtime, uint32_t devtime, uint32_t &id, uint8_t &rtr, uint8_t &len, uint8_t * data){
-    if(canBridgeInternals::deviceCom->getMessageBufferLength() == 0)
+    if(canBridgeInternals::deviceCom->getRxMessageBufferLength() == 0)
         return canBridgeDefinitions::errRxBufferEmpty;
 
     CanMessage msg;
@@ -155,9 +155,13 @@ uint32_t LibCanBridge::getMessage(time_t drvtime, uint32_t devtime, uint32_t &id
     memcpy(data, msg.getData(), len);
     devtime = msg.getRevTimeDriverMs();
     drvtime = msg.getTimeRaw();
-    return canBridgeInternals::deviceCom->getMessageBufferLength();
+    return canBridgeInternals::deviceCom->getRxMessageBufferLength();
 }
 
 canBridgeDefinitions::errorCode LibCanBridge::sendMessage(uint32_t id, uint8_t rtr, uint8_t len, uint8_t *data){
-    return canBridgeDefinitions::errTxQueueFull;
+    CanMessage msg;
+    msg.insertData(0, 0, id, rtr, len, data);
+    if(!canBridgeInternals::deviceCom->sendMessageCommand(msg))
+        return canBridgeDefinitions::errTxQueueFull;
+    return canBridgeDefinitions::errOk;
 }
