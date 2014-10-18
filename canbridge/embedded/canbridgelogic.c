@@ -34,6 +34,7 @@ uchar usbFunctionSetup(uchar setupData[8]){
 			uart_sendline("Opening bus.");
 			can_init();
 			initok = 1;
+			intServed = 1;
 		break;
 		case USB_COMMAND_CLOSEBUS:
 			uart_sendline("Closing bus.");
@@ -116,6 +117,7 @@ void bridgelogic_poll(){
 			if(usbInterruptIsReady() && intServed){
 				intServed = 0;
 				canbuflen = can_getRxBufferLength();
+				//uart_send(canbuflen);
 				usbSetInterrupt(&canbuflen, 1);
 			}
 		}
