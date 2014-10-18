@@ -56,6 +56,7 @@ int canbuf_remove(canMessage *m){
 			m->data[i] = ring_data[ring_tail].data[i];
 		ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
 			ring_tail = (ring_tail + 1) % RING_SIZE;
+			msg_received--;
 		}
 		return 1;
 	} else {
@@ -201,7 +202,6 @@ int8_t can_getMessage(canMessage *m){
 	
 	status = canbuf_remove(m);
 	if (status){
-		msg_received--;
 		status = can_getRxBufferLength();
 	}
   
