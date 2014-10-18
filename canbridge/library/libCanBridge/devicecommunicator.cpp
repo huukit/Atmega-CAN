@@ -1,10 +1,18 @@
 #include "devicecommunicator.h"
 #include <QDebug>
 
+static const uint32_t maxTxRetries = 10;
+
 DeviceCommunicator::DeviceCommunicator(libusb_device_handle * handle, QObject *parent) :
     usbDeviceHandle(handle), QObject(parent)
 {
     intHandler = new DeviceInterruptHandler(handle, &messageBuffer, this);
+}
+
+void DeviceCommunicator::hasInt(int mcount){
+    qDebug() << "Has message, buflen: " << mcount;
+    emit hasMessage(mcount);
+
 }
 
 bool DeviceCommunicator::sendMessageCommand(CanMessage &message){
@@ -12,16 +20,16 @@ bool DeviceCommunicator::sendMessageCommand(CanMessage &message){
     uint32_t i;
     ssize_t success = 0;
 
-    for(i = 0; i < 10; i++){
+    for(i = 0; i < maxTxRetries; i++){
         success = libusb_control_transfer(usbDeviceHandle, LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_ENDPOINT_IN, deviceCommands::getFreeTx, 0, 0, usbDataBuffer, 8, 1000);
         if(success != 1)
             return false;
-        // See if we have free buffer.
-        qDebug() << "Has " << success << "bytes, data: " << usbDataBuffer[0];
+        // See if we have free buffer (0xFF = no free buffers).
         if(usbDataBuffer[0] != 0xFF)
             break;
     }
-    if(i == 10)
+    // Retries up, return send failure.
+    if(i == maxTxRetries)
         return false;
     // We have free buffer, send data.
     deviceCommands::canMessage msg;
@@ -39,6 +47,7 @@ bool DeviceCommunicator::sendMessageCommand(CanMessage &message){
 bool DeviceCommunicator::sendOpenCommand(uint32_t busSpeed){
     // Start interrupthandler before opening bus so no messages get missed.
     intHandler->start();
+    connect(intHandler, SIGNAL(hasMessages(int)), this, SLOT(hasInt(int)));
 
     // Send start command, speed as data.
     uint8_t usbDataBuffer[maxUsbControlDataLen];
@@ -72,6 +81,9 @@ bool DeviceCommunicator::sendCloseCommand(){
 
 bool DeviceCommunicator::getMessageFromBuffer(CanMessage &message){
     if(messageBuffer.isEmpty())return false;
+    bufferMutex.lock();
     message = *messageBuffer.first();
+    messageBuffer.pop_front();
+    bufferMutex.unlock();
     return true;
 }

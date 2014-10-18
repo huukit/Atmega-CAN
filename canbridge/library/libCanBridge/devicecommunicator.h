@@ -1,3 +1,21 @@
+/*
+ * <copyright>
+ * Copyright (c) 2014: Tuomas Huuki / Proximia, http://proximia.fi/
+ *
+ * This file is free software; you can redistribute it and/or modify
+ * it under the terms of either the GNU General Public License version 2
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * Lesser GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <?http://www.gnu.org/licenses/>.
+ * </copyright>
+ */
+
 #ifndef DEVICECOMMUNICATOR_H
 #define DEVICECOMMUNICATOR_H
 
@@ -7,6 +25,7 @@
 #include "libusb.h"
 #include "canmessage.h"
 #include <QVector>
+#include <QDebug>
 
 namespace deviceCommands{
     static const uint32_t initBus = 1;
@@ -40,6 +59,7 @@ static QMutex bufferMutex;
 class DeviceInterruptHandler : public QThread{
     Q_OBJECT
 public:
+
     DeviceInterruptHandler(libusb_device_handle * handle, canMessageBuffer_t * mbuf, QObject * parent = 0)
         : usbDeviceHandle(handle), messageBuffer(mbuf), QThread(parent){
         runEnabled = false;
@@ -58,7 +78,7 @@ public:
             if(success >= LIBUSB_SUCCESS){
                 for(uint32_t i = 0; i < dataControlBuffer[0]; i++){
                     success = libusb_control_transfer(usbDeviceHandle, LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_ENDPOINT_IN, deviceCommands::getCanData, 0, 0, dataBuffer, sizeof(deviceCommands::canMessage), 1000);
-                    qDebug("Has message.");
+                    //qDebug("Has message.");
                     CanMessage * mes = new CanMessage();
                     deviceCommands::canMessage * devmsg = (deviceCommands::canMessage *)dataBuffer;
                     mes->insertData(devmsg->cantime, 0, devmsg->mesid, devmsg->rtr, devmsg->length, devmsg->data);
@@ -66,7 +86,8 @@ public:
                     messageBuffer->append(mes);
                     bufferMutex.unlock();
                 }
-                emit(dataControlBuffer[0]);
+                emit(hasMessages(dataControlBuffer[0]));
+
             }
         }
     }
@@ -76,7 +97,7 @@ public:
     }
 
 signals:
-    void hasMessages(uint8_t);
+    void hasMessages(int);
 
 private:
     bool runEnabled;
@@ -104,8 +125,10 @@ public:
     bool sendMessageCommand(CanMessage & message);
 
 signals:
+    void hasMessage(int);
 
 public slots:
+    void hasInt(int mcount);
 
 private:
     libusb_device_handle * usbDeviceHandle;

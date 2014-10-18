@@ -22,7 +22,12 @@ namespace canBridgeInternals{
     static SignalTrampoline * sigTrampoline = 0;
 }
 
+#ifdef __CANBRIDGE_USE_QT
+LibCanBridge::LibCanBridge(QObject *parent):
+    QObject(parent)
+#else
 LibCanBridge::LibCanBridge()
+#endif
 {
     canBridgeInternals::deviceCom = 0;
     canBridgeInternals::sigTrampoline = new SignalTrampoline();
@@ -142,7 +147,7 @@ canBridgeDefinitions::errorCode LibCanBridge::init(uint32_t busSpeed){
     return canBridgeDefinitions::errOk;
 }
 
-uint32_t LibCanBridge::getMessage(time_t drvtime, uint32_t devtime, uint32_t &id, uint8_t &rtr, uint8_t &len, uint8_t * data){
+uint32_t LibCanBridge::getMessage(time_t &drvtime, uint32_t &devtime, uint32_t &id, uint8_t &rtr, uint8_t &len, uint8_t * data){
     if(canBridgeInternals::deviceCom->getRxMessageBufferLength() == 0)
         return canBridgeDefinitions::errRxBufferEmpty;
 

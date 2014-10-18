@@ -18,7 +18,8 @@ SOURCES += libcanbridge.cpp \
 HEADERS += libcanbridge.h \
     devicecommunicator.h \
     canmessage.h \
-    signaltrampoline.h
+    signaltrampoline.h \
+    ../libusb-1.0.19-rc1-win/include/libusb-1.0/libusb.h
 
 unix {
     target.path = /usr/lib
