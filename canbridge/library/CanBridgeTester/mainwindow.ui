@@ -10,8 +10,20 @@
     <height>430</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>574</width>
+    <height>430</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>574</width>
+    <height>430</height>
+   </size>
+  </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>CanBridge Tester app</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QPushButton" name="butConnect">
@@ -105,6 +117,32 @@
      </rect>
     </property>
    </widget>
+   <widget class="QTextEdit" name="textIncoming">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>30</y>
+      <width>531</width>
+      <height>281</height>
+     </rect>
+    </property>
+    <property name="inputMethodHints">
+     <set>Qt::ImhMultiLine</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>10</y>
+      <width>46</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Trace</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -135,7 +173,7 @@
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionClose">
    <property name="text">
-    <string>Close</string>
+    <string>Exit</string>
    </property>
   </action>
   <action name="actionAbout">

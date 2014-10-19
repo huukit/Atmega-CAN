@@ -20,16 +20,14 @@ public:
 
 private slots:
     void on_butConnect_clicked();
-
     void on_butDisconnect_clicked();
-
     void on_actionAbout_triggered();
-
     void on_butSend_clicked();
-
     void on_checkFlood_toggled(bool checked);
 
     void handleIncomingMessage(int mcount);
+
+    void on_actionClose_triggered();
 
 private:
     Ui::MainWindow *ui;

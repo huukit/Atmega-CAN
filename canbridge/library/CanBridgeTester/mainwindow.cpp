@@ -3,12 +3,15 @@
 #include <QDebug>
 #include <string>
 #include <QMessageBox>
+#include <QDate>
+#include <time.h>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->combSpeed->addItem("250k");
 }
 
 MainWindow::~MainWindow()
@@ -18,6 +21,21 @@ MainWindow::~MainWindow()
 
 void MainWindow::handleIncomingMessage(int mcount){
     qDebug() << "Has messages, count: " << mcount;
+    time_t drivertime;
+    uint32_t devtime, id;
+    uint8_t rtr, datalen, candata[8];
+
+    while(mcount-- > 0){
+        canBridge.getMessage(drivertime, devtime, id, rtr, datalen, candata);
+        QString entry;
+        entry.append(QDateTime::fromTime_t(drivertime).toString());
+        entry.append(QString(" - %1 - 0x%2 - %3B - ").arg(devtime).arg(id, 0, 16).arg(datalen));
+        for(int i = 0; i < datalen - 1; i++){
+            entry.append(QString("%1:").arg(candata[i], 2, 16, QChar('0')).toUpper());
+        }
+        if(mcount > 0)entry.append(QString("%1").arg(candata[datalen -1], 2, 16, QChar('0')).toUpper());
+        ui->textIncoming->append(entry);
+    }
 }
 
 void MainWindow::on_butConnect_clicked()
@@ -41,17 +59,15 @@ void MainWindow::on_butDisconnect_clicked()
 
 void MainWindow::on_actionAbout_triggered()
 {
-    QString version = QString::fromStdString(canBridge.getLibraryVersionString());
     QMessageBox box;
-    box.setText(version);
+    box.setText(QString::fromStdString(canBridge.getLibraryVersionString()));
     box.exec();
 }
 
 void MainWindow::on_butSend_clicked()
 {
-
-    uint8_t bufferdat[] = "12345678";
-    canBridge.sendMessage(0x0A, 0, 8, bufferdat);
+    uint8_t bufferdata[] = "12345678";
+    canBridge.sendMessage(0x0F0, 0, 8, bufferdata);
     count++;
     ui->lineCount->setText(QString::number(count));
 }
@@ -67,4 +83,9 @@ void MainWindow::on_checkFlood_toggled(bool checked)
     }
     else
         ftimer->stop();
+}
+
+void MainWindow::on_actionClose_triggered()
+{
+    this->close();
 }
