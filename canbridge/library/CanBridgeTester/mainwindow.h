@@ -29,6 +29,8 @@ private slots:
 
     void on_checkFlood_toggled(bool checked);
 
+    void handleIncomingMessage(int mcount);
+
 private:
     Ui::MainWindow *ui;
     LibCanBridge canBridge;

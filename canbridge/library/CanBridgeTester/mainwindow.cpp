@@ -16,6 +16,10 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::handleIncomingMessage(int mcount){
+    qDebug() << "Has messages, count: " << mcount;
+}
+
 void MainWindow::on_butConnect_clicked()
 {
     int32_t success = canBridge.init(canBridgeDefinitions::bus250k);
@@ -24,6 +28,7 @@ void MainWindow::on_butConnect_clicked()
     }
     ui->butConnect->setEnabled(false);
     ui->butDisconnect->setEnabled(true);
+    connect(&canBridge, SIGNAL(hasMessage(int)), this, SLOT(handleIncomingMessage(int)));
 }
 
 void MainWindow::on_butDisconnect_clicked()
@@ -31,6 +36,7 @@ void MainWindow::on_butDisconnect_clicked()
     canBridge.close();
     ui->butConnect->setEnabled(true);
     ui->butDisconnect->setEnabled(false);
+    disconnect(&canBridge, SIGNAL(hasMessage(int)), this, SLOT(handleIncomingMessage(int)));
 }
 
 void MainWindow::on_actionAbout_triggered()

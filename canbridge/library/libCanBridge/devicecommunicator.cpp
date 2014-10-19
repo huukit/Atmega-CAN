@@ -67,6 +67,9 @@ bool DeviceCommunicator::sendCloseCommand(){
     // Stop interrupt & receive.
     intHandler->stop();
     intHandler->wait();
+
+    disconnect(intHandler, SIGNAL(hasMessages(int)), this, SLOT(hasInt(int)));
+
     while(!messageBuffer.isEmpty()){
         delete messageBuffer.last();
         messageBuffer.pop_back();

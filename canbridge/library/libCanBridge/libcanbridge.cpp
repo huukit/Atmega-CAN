@@ -143,6 +143,10 @@ canBridgeDefinitions::errorCode LibCanBridge::init(uint32_t busSpeed){
     if(!canBridgeInternals::deviceCom->sendOpenCommand(canBridgeDefinitions::bus250k))
         return canBridgeDefinitions::errCannotOpenDevice;
 
+    #ifdef __CANBRIDGE_USE_QT
+    connect(canBridgeInternals::deviceCom, SIGNAL(hasMessage(int)), this, SIGNAL(hasMessage(int)));
+    #endif
+
     // Free the device list.
     return canBridgeDefinitions::errOk;
 }

@@ -113,6 +113,9 @@ uint8_t can_init(){
 	
 	// Clear all driver buffers.
 	can_clear_all_mob();
+	msg_received = 0;
+	ring_head = 0;
+	ring_tail = 0;
 	
 	// Initialize reception buffers.
 	for(uint32_t i = 0; i < NB_RX_MOB; i++){

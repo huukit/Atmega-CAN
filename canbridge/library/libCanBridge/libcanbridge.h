@@ -97,7 +97,11 @@ public:
     void registerCallback(rxIntCallback cb);
 
     std::string getLibraryVersionString();
+
+#ifdef __CANBRIDGE_USE_QT
 signals:
+    void hasMessage(int);
+#endif
 
 private:
     bool initCalled;
