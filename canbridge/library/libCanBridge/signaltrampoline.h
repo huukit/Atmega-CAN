@@ -24,6 +24,10 @@
 
 #include "libcanbridge.h"
 
+/* Just a simple helper class to use when the user application does not use QT.
+    This will take the internal signal and call a callback function registered by the user.
+*/
+
 class SignalTrampoline : public QObject{
     Q_OBJECT
 public:
@@ -35,7 +39,7 @@ public:
     }
 
 public slots:
-    void messageInt(uint32_t buflen){
+    void messageInt(int buflen){
         if(intCallback)intCallback(buflen);
     }
 

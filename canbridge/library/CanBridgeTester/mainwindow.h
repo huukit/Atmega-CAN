@@ -29,6 +29,8 @@ private slots:
 
     void on_actionClose_triggered();
 
+    void on_butClear_clicked();
+
 private:
     Ui::MainWindow *ui;
     LibCanBridge canBridge;

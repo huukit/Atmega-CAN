@@ -27,6 +27,7 @@
 #include <QVector>
 #include <QDebug>
 
+// Parameters to handle communication between the device and library over USB.
 namespace deviceCommands{
     static const uint32_t initBus = 1;
     static const uint32_t closeBus = 2;
@@ -34,6 +35,7 @@ namespace deviceCommands{
     static const uint32_t sendCanData = 4;
     static const uint32_t getFreeTx = 5;
 
+    // This type is used to transfer CAN-data over USB.
     #pragma pack(1)
     typedef struct _canMessage{
         uint32_t cantime;	/**< CAN message timestamp. */
@@ -48,9 +50,14 @@ namespace deviceCommands{
 static const uint8_t maxUsbControlDataLen = 8;
 static const uint8_t maxUsbDataLen = 254;
 
+// Internal data buffer.
 typedef QVector<CanMessage *> canMessageBuffer_t;
 
-// Helper class for handling device interrupts.
+/* Helper class for handling device interrupts.
+    We use this class to keep polling for interrupts without having to hang the main thread.
+    When an interrupt from the device has been received, all the messages in the device buffer are
+    transferred in a loop to the driver buffer.
+*/
 #include <QThread>
 #include <QMutex>
 
@@ -68,24 +75,29 @@ public:
     void run(){
         runEnabled = true;
         ssize_t success = LIBUSB_SUCCESS;
+        // Buffer for interrupt control data.
         uint8_t dataControlBuffer[maxUsbControlDataLen];
+        // Buffer for actual can data.
         uint8_t dataBuffer[maxUsbDataLen];
 
         int32_t actDatalen;
         while(runEnabled){
             // Wait for interrupt.
             success = libusb_interrupt_transfer(usbDeviceHandle, LIBUSB_ENDPOINT_IN | 1, dataControlBuffer, maxUsbControlDataLen, &actDatalen, 1000);
+            // If we catch and interrupt, the first byte in the buffer will tell us how many messages to receive.
             if(success >= LIBUSB_SUCCESS){
                 for(uint32_t i = 0; i < dataControlBuffer[0]; i++){
                     success = libusb_control_transfer(usbDeviceHandle, LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_ENDPOINT_IN, deviceCommands::getCanData, 0, 0, dataBuffer, sizeof(deviceCommands::canMessage), 1000);
-                    //qDebug("Has message.");
+                    // Create internal message type and copy the data from the buffer.
                     CanMessage * mes = new CanMessage();
                     deviceCommands::canMessage * devmsg = (deviceCommands::canMessage *)dataBuffer;
                     mes->insertData(devmsg->cantime, 0, devmsg->mesid, devmsg->rtr, devmsg->length, devmsg->data);
+                    // Insert the data in to the internal buffer.
                     bufferMutex.lock();
                     messageBuffer->append(mes);
                     bufferMutex.unlock();
                 }
+                // Finally emit a signal telling the application how many messages were received.
                 emit(hasMessages(dataControlBuffer[0]));
 
             }

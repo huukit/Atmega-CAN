@@ -33,7 +33,7 @@ void MainWindow::handleIncomingMessage(int mcount){
         for(int i = 0; i < datalen - 1; i++){
             entry.append(QString("%1:").arg(candata[i], 2, 16, QChar('0')).toUpper());
         }
-        if(mcount > 0)entry.append(QString("%1").arg(candata[datalen -1], 2, 16, QChar('0')).toUpper());
+        if(datalen > 0)entry.append(QString("%1").arg(candata[datalen -1], 2, 16, QChar('0')).toUpper());
         ui->textIncoming->append(entry);
     }
 }
@@ -88,4 +88,9 @@ void MainWindow::on_checkFlood_toggled(bool checked)
 void MainWindow::on_actionClose_triggered()
 {
     this->close();
+}
+
+void MainWindow::on_butClear_clicked()
+{
+    ui->textIncoming->clear();
 }

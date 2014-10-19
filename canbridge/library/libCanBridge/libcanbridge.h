@@ -16,6 +16,12 @@
  * </copyright>
  */
 
+/*
+ NOTE -- NOTE -- NOTE -- NOTE -- NOTE -- NOTE -- NOTE -- NOTE -- NOTE -- NOTE
+ This is a proof-of-concept implementation and only intended as an example of implementing
+ a library for a USB-CAN converter.
+*/
+
 #ifndef LIBCANBRIDGE_H
 #define LIBCANBRIDGE_H
 
@@ -29,12 +35,16 @@
 #include <stdint.h>
 #include <time.h>
 
+/* Define this to use slots and sockets in qt, otherwise just use the callback.
+    And yes, obviously you will need to recompile the whole library if you change this.
+*/
 #define __CANBRIDGE_USE_QT
 
 #ifdef __CANBRIDGE_USE_QT
 #include <QObject>
 #endif
 
+// Library definitions.
 namespace canBridgeDefinitions{
     static const std::string libraryvendor = "http://proximia.fi";
     static const std::string libraryname = "libCanBridge";
@@ -67,8 +77,8 @@ namespace canBridgeDefinitions{
     };
 }
 
+// Callback when messages are ready. Parameter is the number of messages waiting in the buffer.
 typedef void(* rxIntCallback)(uint32_t);
-
 
 class LIBCANBRIDGESHARED_EXPORT LibCanBridge
 #ifdef __CANBRIDGE_USE_QT
@@ -88,18 +98,25 @@ public:
 #endif
     ~LibCanBridge();
 
+    // Init the library and open a connection to the device.
     canBridgeDefinitions::errorCode init(uint32_t busSpeed);
+    // Close the connection to the device.
     void close();
 
+    // Send a can mesage.
     canBridgeDefinitions::errorCode sendMessage(uint32_t id, uint8_t rtr, uint8_t len, uint8_t * data);
+    // The driver constantly reveives messagesd from the device, this function gets the message from the internal driver buffer.
     uint32_t getMessage(time_t &drvtime, uint32_t &devtime, uint32_t &id, uint8_t &rtr, uint8_t &len, uint8_t * data);
 
+    // If you do not use the QT slots & signals, you may use this to register a callback.
     void registerCallback(rxIntCallback cb);
 
+    // Return the library version as well as the libusb version it was compiled with.
     std::string getLibraryVersionString();
 
 #ifdef __CANBRIDGE_USE_QT
 signals:
+    // Signal to emit when there are messages waiting in the buffer. Parameter is number of messages in buffer.
     void hasMessage(int);
 #endif
 

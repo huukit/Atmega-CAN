@@ -6,18 +6,24 @@
 #include <QDebug>
 #include "signaltrampoline.h"
 
+/* This is pretty ugly, but will do for now.
+ * TODO: Implement pointer-to-implementation structure.
+*/
+
 namespace canBridgeInternals{
-    // USB library.
+    // USB library constants.
     static libusb_device_handle *currentdevhndl = 0;
 
     const uint16_t usbDevVID = 0x16C0;
     const uint16_t usbDevPID = 0x05DC;
+
+    // USB string descriptor. As we use VOTI:s default VID/PID device must be recognized by name.
     std::string usbDevVendorString = "proximia.fi";
     std::string usbDevDeviceString = "CANBridge";
     const uint32_t usbDevMaxDescrLength = 1024;
     const uint8_t usbLibraryContext = NULL;
 
-    // Communicator.
+    // Communicator. Hide implementation from user.
     static DeviceCommunicator * deviceCom = 0;
     static SignalTrampoline * sigTrampoline = 0;
 }
@@ -54,6 +60,7 @@ std::string LibCanBridge::getLibraryVersionString(){
 }
 
 void LibCanBridge::close(){
+    // If the init has been called, we will need to close everything and delete the communicator object.
     if(initCalled){
         canBridgeInternals::deviceCom->sendCloseCommand();
         libusb_close(canBridgeInternals::currentdevhndl);
@@ -67,6 +74,7 @@ void LibCanBridge::close(){
 }
 
 canBridgeDefinitions::errorCode LibCanBridge::init(uint32_t busSpeed){
+    // Only 250k supported at this time.
     if(busSpeed != canBridgeDefinitions::bus250k)
         return canBridgeDefinitions::errInvalidSpeed;
 
@@ -83,6 +91,7 @@ canBridgeDefinitions::errorCode LibCanBridge::init(uint32_t busSpeed){
         return canBridgeDefinitions::errUsbInitFailed;
     }
 
+    // Make sure we close everything when the time comes.
     initCalled = true;
 
     // Get list of devices.
@@ -110,6 +119,7 @@ canBridgeDefinitions::errorCode LibCanBridge::init(uint32_t busSpeed){
         }
     }
 
+    // If no device is found, return error.
     if(i == success)
         return canBridgeDefinitions::errNoDevice;
 
@@ -129,7 +139,7 @@ canBridgeDefinitions::errorCode LibCanBridge::init(uint32_t busSpeed){
 
     qDebug() << "Vendor string is: "<< QString::fromLatin1(description);
 
-    // Enable endpoint 1
+    // Enable endpoint 1 (interrupt)
     success = libusb_set_configuration(canBridgeInternals::currentdevhndl, 1);
     if(success != LIBUSB_SUCCESS)
         return canBridgeDefinitions::errUsbInitNoChannel;
@@ -138,16 +148,23 @@ canBridgeDefinitions::errorCode LibCanBridge::init(uint32_t busSpeed){
     libusb_claim_interface(canBridgeInternals::currentdevhndl, 0);
 
     qDebug() << "LibUsb init complete.";
+
+    // Create the device communicator instance
     canBridgeInternals::deviceCom = new DeviceCommunicator(canBridgeInternals::currentdevhndl, 0);
 
+    // Send open request to device.
     if(!canBridgeInternals::deviceCom->sendOpenCommand(canBridgeDefinitions::bus250k))
         return canBridgeDefinitions::errCannotOpenDevice;
 
+    // Connect the interrupt to the internal signal and also always to the callback.
     #ifdef __CANBRIDGE_USE_QT
     connect(canBridgeInternals::deviceCom, SIGNAL(hasMessage(int)), this, SIGNAL(hasMessage(int)));
     #endif
+    connect(canBridgeInternals::deviceCom, SIGNAL(hasMessage(int)), canBridgeInternals::sigTrampoline, SLOT(messageInt(int)));
 
     // Free the device list.
+    libusb_free_device_list(list, 1);
+
     return canBridgeDefinitions::errOk;
 }
 
