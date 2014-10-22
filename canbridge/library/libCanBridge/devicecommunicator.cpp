@@ -10,7 +10,7 @@ DeviceCommunicator::DeviceCommunicator(libusb_device_handle * handle, QObject *p
 }
 
 void DeviceCommunicator::hasInt(int mcount){
-    qDebug() << "Has message, buflen: " << mcount;
+    //qDebug() << "Has message, buflen: " << mcount;
     emit hasMessage(mcount);
 
 }

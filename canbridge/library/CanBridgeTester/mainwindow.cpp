@@ -20,7 +20,8 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::handleIncomingMessage(int mcount){
-    qDebug() << "Has messages, count: " << mcount;
+    if(mcount > 10)
+        qDebug() << "Has messages, count: " << mcount;
     time_t drivertime;
     uint32_t devtime, id;
     uint8_t rtr, datalen, candata[8];
