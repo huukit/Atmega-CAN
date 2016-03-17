@@ -1,0 +1,24 @@
+
+# /canbootloader/
+/canbootloader/Debug
+/canbootloader/*.atsuo
+
+# /canbridge/
+/canbridge/Debug
+/canbridge/*.atsuo
+
+# /canbridge/embedded/
+/canbridge/embedded/Debug
+
+# /canbridge/library/
+/canbridge/library/build-CanBridgeTester-Desktop_Qt_5_3_MSVC2010_OpenGL_32bit-Debug
+/canbridge/library/build-libCanBridge-Desktop_Qt_5_3_MSVC2010_OpenGL_32bit-Debug
+/canbridge/library/build-CanBridgeTester-Desktop_Qt_5_2_1_MSVC2010_32bit-Debug
+/canbridge/library/build-libCanBridge-Desktop_Qt_5_2_1_MSVC2010_32bit-Debug
+
+# /canbridge/library/CanBridgeTester/
+/canbridge/library/CanBridgeTester/*.user
+
+# /canbridge/library/libCanBridge/
+/canbridge/library/libCanBridge/*.user
+/canbridge/library/libCanBridge/*.bak
