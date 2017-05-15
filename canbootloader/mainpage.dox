@@ -4,7 +4,8 @@
 	one myself. As of now, the bootloader supports basic functions such as reading and writing flash and eeprom. It also 
 	has the possibility of rebooting the module and starting the main application. The documentation should be pretty good
 	and simple to understand. I have done my best to keep things simple and readable. 
-	The latest version of the code is always available at http://proximia.fi
+	The latest version of the code is always available at https://github.com/huukit/public
+	The latest documentation can be found at http://proximia.fi/doc/canbootloader/
 
 	At this point the full bootloader consumes just over 2k of flash and could probably be optimized further to fit in to
 	2k.
