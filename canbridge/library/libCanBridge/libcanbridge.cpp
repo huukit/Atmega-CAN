@@ -21,7 +21,6 @@ namespace canBridgeInternals{
     std::string usbDevVendorString = "proximia.fi";
     std::string usbDevDeviceString = "CANBridge";
     const uint32_t usbDevMaxDescrLength = 1024;
-    const uint8_t usbLibraryContext = NULL;
 
     // Communicator. Hide implementation from user.
     static DeviceCommunicator * deviceCom = 0;
@@ -64,7 +63,7 @@ void LibCanBridge::close(){
     if(initCalled){
         canBridgeInternals::deviceCom->sendCloseCommand();
         libusb_close(canBridgeInternals::currentdevhndl);
-        libusb_exit(canBridgeInternals::usbLibraryContext);
+        libusb_exit(NULL);
         initCalled = false;
     }
     if(canBridgeInternals::deviceCom){
@@ -85,7 +84,7 @@ canBridgeDefinitions::errorCode LibCanBridge::init(uint32_t busSpeed){
     struct libusb_device_descriptor desc;
 
     // Init usb library.
-    success = libusb_init(canBridgeInternals::usbLibraryContext);
+    success = libusb_init(NULL);
     if(success != LIBUSB_SUCCESS){
         qDebug() << "Libusb init failed.";
         return canBridgeDefinitions::errUsbInitFailed;
@@ -95,7 +94,7 @@ canBridgeDefinitions::errorCode LibCanBridge::init(uint32_t busSpeed){
     initCalled = true;
 
     // Get list of devices.
-    success = libusb_get_device_list(canBridgeInternals::usbLibraryContext, &list);
+    success = libusb_get_device_list(NULL, &list);
 
     if(success < LIBUSB_SUCCESS){
         qDebug() << "USB device discovery failure.";

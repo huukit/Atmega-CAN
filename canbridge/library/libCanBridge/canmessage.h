@@ -38,8 +38,9 @@ public:
     const std::string getTime() const{
         tm timeinfo;
         localtime_s(&timeinfo, &recTime);
-        char buffer [128];
-        asctime_s(buffer ,&timeinfo);
+        static const uint32_t bufLen = 128;
+        char buffer [bufLen];
+        asctime_s(buffer, bufLen, &timeinfo);
         std::string timenow(buffer);
         return timenow;
     }

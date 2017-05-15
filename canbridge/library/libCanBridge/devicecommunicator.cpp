@@ -4,7 +4,7 @@
 static const uint32_t maxTxRetries = 10;
 
 DeviceCommunicator::DeviceCommunicator(libusb_device_handle * handle, QObject *parent) :
-    usbDeviceHandle(handle), QObject(parent)
+    usbDeviceHandle(handle), intHandler(0), messageBuffer(), QObject(parent)
 {
     intHandler = new DeviceInterruptHandler(handle, &messageBuffer, this);
 }

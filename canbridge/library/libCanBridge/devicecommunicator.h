@@ -68,8 +68,8 @@ class DeviceInterruptHandler : public QThread{
 public:
 
     DeviceInterruptHandler(libusb_device_handle * handle, canMessageBuffer_t * mbuf, QObject * parent = 0)
-        : usbDeviceHandle(handle), messageBuffer(mbuf), QThread(parent){
-        runEnabled = false;
+        : runEnabled(false), usbDeviceHandle(handle), messageBuffer(mbuf), QThread(parent){
+
     }
 
     void run(){
