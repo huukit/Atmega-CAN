@@ -14,7 +14,8 @@ The basic usage can be found in the documentation.
 A user friendly CAN library to use with AVR devices. Uses the Atmel driver for low level interactions. Documentation can be generated with doxygen or the online version viewed here: http://proximia.fi/doc/canlibrary/
 
 ### Can Bridge CAN-USB converter
-Proof-of-concept CAN-USB converter made with the least components available. The schematic can be found under the schematics-folder. 
+Proof-of-concept CAN-USB converter made with the least components available. The schematic can be found under the schematics-folder.
+Does not use CDC, but instead a proper USB-driver and control API.
 
 The project includes the following parts:
 * Hardware under schematics.
