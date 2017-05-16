@@ -37,6 +37,8 @@ This is the **byte** address. To get this, just multiply the word address by 2. 
 
 And that should be it. Compile & flash and your board will be flashable through the CAN interface!
 
+Binaries are provided for selected processors under canbootloader/binaries/
+
 ### Can Bridge CAN-USB converter
 Proof-of-concept CAN-USB converter made with the least components available. The schematic can be found under the schematics-folder.
 Does not use CDC, but instead a proper USB-driver and control API.
