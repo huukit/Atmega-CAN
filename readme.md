@@ -20,11 +20,13 @@ configure the boot address by setting the fuses. These are device dependent, and
 address of the boot vector.
 
 ![BootBits](canbootloader/boot_bits.png "Boot bits")
+
 ![Fuses](canbootloader/fuse.png "Fuse settings")
 
 2. You will need to set up linking the .text section to the correct place in the project file. Open the project settings, Linker and Memory settings.
 Then modify the .text=0xXXXX to suit you needs. Now, if you look at the linker output, you will see that the address displayed there is different. 
 This is the **byte** address. To get this, just multiply the word address by 2. Thus a boot **word** address of 0x7000 will map to 0xe000 for linking.
+
 ![Linker](canbootloader/linking.png "Linker settings")
 
 This is somewhat confusing at first and might seem somewhat strange for beginners.
