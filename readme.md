@@ -1,9 +1,13 @@
-# This is the public repository for proximia.fi.
+# CAN libraries and utilities for Atmel Atmega processors
+Support mostly for Atmega16/32/64(C1, M1) and AT90CAN128/64/32
 Any code here is licensed under GPL/LGPL.
 
 ## Projects:
 ### Can bootloader
-This is a simple and straightforward bootloader for atmega devices with CAN support. It uses as simlpified CANOpen protocol to flash a program file and/or write bytes to the EEPROM of the device. Up-to-date documentation can be generated from the attached source files with doxygen. An online version of the documentation is available at: http://proximia.fi/doc/canbootloader/
+This is a simple and straightforward bootloader for atmega devices with CAN support. It uses as simlpified CANOpen protocol to flash a program file and/or write bytes to the EEPROM of the device. 
+
+Up-to-date documentation can be generated from the attached source files with doxygen. An online version of the documentation is available at: http://proximia.fi/doc/canbootloader/
+
 The basic usage can be found in the documentation.
 
 ### CAN library for AVR devices (under lib)
@@ -23,13 +27,15 @@ This project can also be used as a reference for small microcontrollers wanting 
 
 ### Libraries
 Any generic libraries used by the projects are included here. You will need these for the bootloader (CAN driver, UART for debugging) and the CAN-USB converter.
+
 Folders:
-/lib
--/uart      UART library for ATmega64C1 and similar.
--/can       The CAN library (ATmega64C1, AT90CAN32/64/128 and similar)
--/3rdparty
---/usbdrv   Vusb-driver for the CAN-USB converter (ATmega64C1) (https://www.obdev.at/products/vusb/index.html)
-** Things to note: **
+* /lib
+* -/uart      UART library for ATmega64C1 and similar.
+* -/can       The CAN library (ATmega64C1, AT90CAN32/64/128 and similar)
+* -/3rdparty
+* --/usbdrv   Vusb-driver for the CAN-USB converter (ATmega64C1) (https://www.obdev.at/products/vusb/index.html)
+
+**Things to note:**
 Using libraries with QT creator is not trivial. Thus you will need to point creator to the correct directories of copy the .dll file to your build directory. So, to look for an example, look at CanBridgeTester.pro and the library directives there.
 
 ### Schematics
