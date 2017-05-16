@@ -43,9 +43,9 @@ Schematics for the CAN-USB converter. Also includes schematics for a really simp
 
 #### Schematics as pictures for quick reference:
 
-![TinyUART](schematics/tinyuart.png "Tinyuart schematic")
+![TinyUART](schematic/tinyuart.png "Tinyuart schematic")
 
-![CANBridge](schematics/canbridge.png "CAN Bridge schematic")
+![CANBridge](schematic/canbridge.png "CAN Bridge schematic")
 
 ### Example usage
 The projects above can be used to build a distributed can measurement network, where nodes have can have arbitrary amounts and types of sensors. The nodes can then send data to the bus and that data can be viewed on the computer using the CAN-USB bridge. Flashing the nodes with the bootloader enables the updating of any node on the network. 
