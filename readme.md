@@ -41,6 +41,12 @@ Using libraries with QT creator is not trivial. Thus you will need to point crea
 ### Schematics
 Schematics for the CAN-USB converter. Also includes schematics for a really simple UART-USB converter that has been made somewhat obsolete by the cheap ones on ebay and similar sites.
 
+#### Schematics as pictures for quick reference:
+
+![TinyUART](schematics/tinyuart.png "Tinyuart schematic")
+
+![CANBridge](schematics/canbridge.png "CAN Bridge schematic")
+
 ### Example usage
 The projects above can be used to build a distributed can measurement network, where nodes have can have arbitrary amounts and types of sensors. The nodes can then send data to the bus and that data can be viewed on the computer using the CAN-USB bridge. Flashing the nodes with the bootloader enables the updating of any node on the network. 
 This is actually what this project is actually been used for at the moment, but as conciderable work has gone in the the implementation of all the measurement nodes, the source is not available to the public.
