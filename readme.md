@@ -14,7 +14,9 @@ The basic usage can be found in the documentation.
 A user friendly CAN library to use with AVR devices. Uses the Atmel driver for low level interactions. Documentation can be generated with doxygen or the online version viewed here: http://proximia.fi/doc/canlibrary/
 
 **A word on configuring the bootloader:**
-The AVR flash is arranged as 8K/16K/32K x 16. This means that you might get a little confused when talking about addresses.
+
+The AVR flash is arranged as 8K/16K/32K x 16. This means that you might get a little confused when talking about addresses. 
+
 1. You will need to configure the bootloader address depending on the type of device you are using. First of all you will need to
 configure the boot address by setting the fuses. These are device dependent, and the that the start address here is the **word**
 address of the boot vector.
@@ -29,7 +31,11 @@ This is the **byte** address. To get this, just multiply the word address by 2. 
 
 ![Linker](canbootloader/linking.png "Linker settings")
 
-This is somewhat confusing at first and might seem somewhat strange for beginners.
+3. Set the system clock frequency in the project settings under the compiler symbols. Define F_CPU=[fhz]UL
+
+4. Copy canlibraryconfiguration_base.h and rename to canlibraryconfiguration.h. Edit file to match hardware.
+
+And that should be it. Compile & flash and your board will be flashable through the CAN interface!
 
 ### Can Bridge CAN-USB converter
 Proof-of-concept CAN-USB converter made with the least components available. The schematic can be found under the schematics-folder.
