@@ -23,13 +23,15 @@ This project can also be used as a reference for small microcontrollers wanting 
 
 ### Libraries
 Any generic libraries used by the projects are included here. You will need these for the bootloader (CAN driver, UART for debugging) and the CAN-USB converter.
+
 Folders:
 /lib
 -/uart      UART library for ATmega64C1 and similar.
 -/can       The CAN library (ATmega64C1, AT90CAN32/64/128 and similar)
 -/3rdparty
---/usbdrv   Vusb-driver for the CAN-USB converter (ATmega64C1) (https://www.obdev.at/products/vusb/index.html)
-** Things to note: **
+--/usbdrv   Vusb-driver for the CAN-USB converter (ATmega64C1) (https://www.obdev.at/products/vusb/index.html)  
+
+**Things to note:**
 Using libraries with QT creator is not trivial. Thus you will need to point creator to the correct directories of copy the .dll file to your build directory. So, to look for an example, look at CanBridgeTester.pro and the library directives there.
 
 ### Schematics
