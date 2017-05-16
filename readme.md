@@ -10,9 +10,6 @@ Up-to-date documentation can be generated from the attached source files with do
 
 The basic usage can be found in the documentation.
 
-### CAN library for AVR devices (under lib)
-A user friendly CAN library to use with AVR devices. Uses the Atmel driver for low level interactions. Documentation can be generated with doxygen or the online version viewed here: http://proximia.fi/doc/canlibrary/
-
 **A word on configuring the bootloader:**
 
 The AVR flash is arranged as 8K/16K/32K x 16. This means that you might get a little confused when talking about addresses. 
@@ -55,6 +52,10 @@ The project includes the following parts:
 The hardware includes a termination resistor that can be enabled with software.
 
 This project can also be used as a reference for small microcontrollers wanting to communicate with devices over USB.
+
+
+### CAN library for AVR devices (under lib)
+A user friendly CAN library to use with AVR devices. Uses the Atmel driver for low level interactions. Documentation can be generated with doxygen or the online version viewed here: http://proximia.fi/doc/canlibrary/
 
 ### Libraries
 Any generic libraries used by the projects are included here. You will need these for the bootloader (CAN driver, UART for debugging) and the CAN-USB converter.
