@@ -15,6 +15,7 @@ A user friendly CAN library to use with AVR devices. Uses the Atmel driver for l
 
 ### Can Bridge CAN-USB converter
 Proof-of-concept CAN-USB converter made with the least components available. The schematic can be found under the schematics-folder. 
+
 The project includes the following parts:
 * Hardware under schematics.
 * Firmware for processor under canbridge/embedded (you will need the CAN- and USB-drivers mentioned below.)
@@ -23,6 +24,9 @@ The project includes the following parts:
   * buildable library module (.so, .dll)
   * libusb for usb-connectivity on the PC side.
   * a tester application for the whole chain above written in QT.
+
+The hardware includes a termination resistor that can be enabled with software.
+
 This project can also be used as a reference for small microcontrollers wanting to communicate with devices over USB.
 
 ### Libraries
